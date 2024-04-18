@@ -4,9 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./CheckCases.css";
 import axios from "axios";
 import { toast } from "react-toastify";
-import html2canvas from "html2canvas"; // For generating PDF
-import { saveAs } from "file-saver"; // For downloading PDF
-import jsPDF from "jspdf";
+import FinalCertificate from "./FinalCertificate";
 
 const JWT =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIwYzJmOTU3Mi1hMmZjLTQ3NzQtYThmMS1kNzQ1YmJjODE1MzMiLCJlbWFpbCI6ImF2aW5hc2h2aTI3NUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJpZCI6IkZSQTEiLCJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MX0seyJpZCI6Ik5ZQzEiLCJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MX1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiMDkzOGY3NDVlZGExNjgyNmRhYjUiLCJzY29wZWRLZXlTZWNyZXQiOiI2NTBhMjM4Y2U1YjBkOGY1NDRmNjQ4MThkY2I0YWI4YmU0MTU3MTJmYjU1MzUxOWJjOWU2Yjg4M2E2MjE4YWNkIiwiaWF0IjoxNzA4MzE3ODEyfQ.On6oUAvkDbZAnwM6SI-tWUoearXM4BiR-YgsNl8qcEU";
@@ -434,48 +432,11 @@ export default function CheckCases() {
       throw error;
     }
   };
-  const [certificateData, setCertificateData] = useState({
-    recipientName: "John Doe",
-    courseName: "React Certification",
-    date: new Date().toLocaleDateString(),
-  });
 
-  const generatePDF = () => {
-    const certificateElement = document.getElementById("certificate");
-
-    html2canvas(certificateElement)
-      .then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF();
-        pdf.addImage(imgData, "PNG", 0, 0);
-        pdf.save("certificate.pdf");
-      })
-      .catch((error) => {
-        console.error("Error generating PDF:", error);
-      });
-  };
-
-  const uploadToServer = () => {
-    const certificateElement = document.getElementById("certificate");
-    html2canvas(certificateElement)
-      .then((canvas) => {
-        canvas.toBlob((blob) => {
-          const formData = new FormData();
-          formData.append("file", blob, "certificate.pdf");
-          axios
-            .post("/upload-certificate", formData)
-            .then((response) => {
-              console.log("Certificate uploaded successfully:", response.data);
-            })
-            .catch((error) => {
-              console.error("Error uploading certificate:", error);
-            });
-        });
-      })
-      .catch((error) => {
-        console.error("Error generating PDF:", error);
-      });
-  };
+  const [statement, setStatement] = useState("");
+  const [showCertificate, setShowCertificate] = useState([]);
+  const [certificateProps, setCertificateProps] = useState([]);
+  const [showClose, setShowClose] = useState([]);
 
   return (
     <div className="viewComplaints">
@@ -626,30 +587,79 @@ export default function CheckCases() {
                     </td>
 
                     <td style={{ width: "10px" }}>
-                      <input type="text" placeholder="Enter final Statement" />
-                      <div>
-                        <div id="certificate">
-                          <h1>Certificate of Completion</h1>
-                          <p>This is to certify that</p>
-                          <p>{certificateData.recipientName}</p>
-                          <p>has successfully completed the course</p>
-                          <p>{certificateData.courseName}</p>
-                          <p>dated {certificateData.date}</p>
-                        </div>
-                        <button onClick={generatePDF}>
-                          Download Certificate
-                        </button>
-                        <button onClick={uploadToServer}>
-                          Upload Certificate
-                        </button>
-                      </div>
-
+                      {/* here i want to create a certificate  */}
                       <input
+                        type="text"
+                        onChange={(event) => {
+                          setStatement(event.target.value);
+                        }}
+                      />
+
+                      {/* {!showClose[index] && statement && (
+                        <button
+                          onClick={() => {
+                            setCertificateProps({ statement, result, index });
+                            setShowCertificate((prevState) => {
+                              const newState = [...prevState];
+                              newState[index] = true;
+                              return newState;
+                            });
+                            setShowClose((prevState) => {
+                              const newState = [...prevState];
+                              newState[index] = true;
+                              return newState;
+                            });
+                          }}
+                        >
+                          generate certificate
+                        </button>
+                      )}
+                      {showClose[index] && (
+                        <button
+                          onClick={() => {
+                            setShowCertificate((prevState) => {
+                              const newState = [...prevState];
+                              newState[index] = false;
+                              return newState;
+                            });
+                            setShowClose((prevState) => {
+                              const newState = [...prevState];
+                              newState[index] = false;
+                              return newState;
+                            });
+                          }}
+                        >
+                          close
+                        </button>
+                      )} */}
+
+                      {/* <!-- Button trigger modal --> */}
+                      {statement && (
+                        <button
+                          type="button"
+                          class="btn btn-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#exampleModal"
+                          onClick={() => {
+                            setCertificateProps({ statement, result, index });
+                          }}
+                        >
+                          generate certificate
+                        </button>
+                      )}
+                      {showCertificate[index] && (
+                        <div className="certificate-popup">
+                          <FinalCertificate {...certificateProps} />
+                        </div>
+                      )}
+
+                      {/* <input
                         type="file"
                         onChange={(event) => {
                           setDocument(event.target.files[0]);
                         }}
-                      />
+                      /> */}
+
                       <button
                         className="button"
                         onClick={() => {
@@ -691,6 +701,45 @@ export default function CheckCases() {
       >
         Back
       </button>
+      {/* <!-- Modal --> */}
+      <div
+        class="modal fade"
+        id="exampleModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">
+                Modal title
+              </h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div className="certificate-popup">
+                <FinalCertificate {...certificateProps} />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
